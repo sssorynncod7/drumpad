@@ -22,6 +22,23 @@
       </section>
 
       <section id="padGrid" class="pad-grid" aria-label="Drumpad"></section>
+
+      <section class="beat-section" aria-label="Beat oluşturucu">
+        <div class="beat-topbar">
+          <h2>🥁 Beat Yapıcı</h2>
+          <div class="beat-actions">
+            <label>
+              BPM
+              <input id="bpm" type="number" min="60" max="180" value="120" />
+            </label>
+            <button id="playBeat">Beat'i Çal</button>
+            <button id="stopBeat">Beat'i Durdur</button>
+            <button id="clearBeat">Deseni Temizle</button>
+          </div>
+        </div>
+        <p class="hint">Her satır bir enstrüman, her kutu bir adım (16 step). Kutulara tıklayarak beat yaz.</p>
+        <div id="sequencer" class="sequencer"></div>
+      </section>
     </main>
 
     <template id="padTemplate">

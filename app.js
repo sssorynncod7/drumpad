@@ -15,6 +15,10 @@ const pads = [
   { key: "2", name: "Lead", family: "Synth", type: "lead", freq: 440, group: "Synth" },
 ];
 
+const SEQUENCER_PADS = ["Q", "W", "E", "D", "1", "2"];
+const STEPS = 16;
+const pattern = new Map(SEQUENCER_PADS.map((key) => [key, Array(STEPS).fill(false)]));
+
 const FL_LAYOUT = [
   ["Q", "W", "E", "R"],
   ["A", "S", "D", "F"],
@@ -28,6 +32,8 @@ master.gain.value = 0.75;
 master.connect(audioCtx.destination);
 
 const activeNodes = new Set();
+let beatInterval;
+let currentStep = 0;
 
 function envGain(start, peak, end, decay = 0.2) {
   const g = audioCtx.createGain();
@@ -148,6 +154,79 @@ function renderPads() {
   });
 }
 
+function renderSequencer() {
+  const seq = document.getElementById("sequencer");
+  seq.innerHTML = "";
+  const byKey = new Map(pads.map((pad) => [pad.key, pad]));
+
+  SEQUENCER_PADS.forEach((key) => {
+    const row = document.createElement("div");
+    row.className = "seq-row";
+
+    const label = document.createElement("div");
+    const pad = byKey.get(key);
+    label.className = "seq-label";
+    label.textContent = `${key} • ${pad?.name || "Pad"}`;
+    row.appendChild(label);
+
+    pattern.get(key).forEach((isOn, stepIndex) => {
+      const btn = document.createElement("button");
+      btn.className = `seq-step${isOn ? " active" : ""}`;
+      btn.dataset.key = key;
+      btn.dataset.step = String(stepIndex);
+      btn.addEventListener("click", () => {
+        const rowPattern = pattern.get(key);
+        rowPattern[stepIndex] = !rowPattern[stepIndex];
+        btn.classList.toggle("active", rowPattern[stepIndex]);
+      });
+      row.appendChild(btn);
+    });
+
+    seq.appendChild(row);
+  });
+}
+
+function clearBeat() {
+  SEQUENCER_PADS.forEach((key) => {
+    pattern.set(key, Array(STEPS).fill(false));
+  });
+  renderSequencer();
+}
+
+function updateStepMarker(step) {
+  document.querySelectorAll(".seq-step").forEach((node) => node.classList.remove("playing"));
+  document.querySelectorAll(`.seq-step[data-step=\"${step}\"]`).forEach((node) => node.classList.add("playing"));
+}
+
+async function startBeat() {
+  if (audioCtx.state === "suspended") await audioCtx.resume();
+  stopBeat();
+
+  const bpm = Math.max(60, Math.min(180, Number(document.getElementById("bpm").value) || 120));
+  const stepDuration = (60 / bpm) / 4;
+  const stepDurationMs = stepDuration * 1000;
+  const byKey = new Map(pads.map((pad) => [pad.key, pad]));
+
+  beatInterval = setInterval(() => {
+    updateStepMarker(currentStep);
+
+    SEQUENCER_PADS.forEach((key) => {
+      if (!pattern.get(key)[currentStep]) return;
+      const pad = byKey.get(key);
+      if (pad) playPad(pad);
+    });
+
+    currentStep = (currentStep + 1) % STEPS;
+  }, stepDurationMs);
+}
+
+function stopBeat() {
+  if (beatInterval) clearInterval(beatInterval);
+  beatInterval = null;
+  currentStep = 0;
+  updateStepMarker(-1);
+}
+
 document.getElementById("volume").addEventListener("input", (e) => {
   master.gain.value = Number(e.target.value);
 });
@@ -158,6 +237,10 @@ document.getElementById("stopAll").addEventListener("click", () => {
   });
   activeNodes.clear();
 });
+
+document.getElementById("playBeat").addEventListener("click", startBeat);
+document.getElementById("stopBeat").addEventListener("click", stopBeat);
+document.getElementById("clearBeat").addEventListener("click", clearBeat);
 
 document.addEventListener("keydown", async (e) => {
   const key = e.key.toUpperCase();
@@ -173,3 +256,4 @@ document.addEventListener("keydown", async (e) => {
 });
 
 renderPads();
+renderSequencer();
