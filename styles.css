@@ -66,8 +66,81 @@ button, input { cursor: pointer; }
 .name { font-size: 1.05rem; font-weight: 700; }
 .family { color: #cbd5e1; font-size: .88rem; }
 
+.beat-section {
+  width: min(1100px, 94vw);
+  margin: 0 auto 3rem;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid #334155;
+  border-radius: 1rem;
+  padding: 1rem;
+}
+.beat-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.beat-topbar h2 {
+  margin: 0;
+}
+.beat-actions {
+  display: flex;
+  gap: .6rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.beat-actions button {
+  border: 1px solid #475569;
+  color: #e2e8f0;
+  background: #1e293b;
+  border-radius: .6rem;
+  padding: .45rem .8rem;
+}
+#playBeat { border-color: #0ea5e9; }
+#stopBeat { border-color: #ef4444; }
+#clearBeat { border-color: #eab308; }
+
+.hint {
+  color: #cbd5e1;
+  margin: .8rem 0 1rem;
+  font-size: .92rem;
+}
+
+.sequencer {
+  display: grid;
+  gap: .5rem;
+}
+.seq-row {
+  display: grid;
+  grid-template-columns: 130px repeat(16, minmax(20px, 1fr));
+  gap: .4rem;
+  align-items: center;
+}
+.seq-label {
+  font-size: .84rem;
+  color: #e2e8f0;
+}
+.seq-step {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: .35rem;
+  border: 1px solid #334155;
+  background: #0f172a;
+}
+.seq-step.active {
+  background: #22d3ee;
+  box-shadow: 0 0 0 1px rgba(34,211,238,.4);
+}
+.seq-step.playing {
+  outline: 2px solid #f59e0b;
+}
+
 @media (max-width: 760px) {
   .pad-row {
     grid-template-columns: repeat(2, minmax(120px, 1fr));
+  }
+  .seq-row {
+    grid-template-columns: 95px repeat(16, minmax(14px, 1fr));
   }
 }
