@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Şahane Drumpad Simülasyonu</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header>
+      <h1>🎛️ Şahane Drumpad</h1>
+      <p>Davul, saz, mızıka ve daha fazlası — hem tıkla hem klavyeyle çal.</p>
+    </header>
+
+    <main>
+      <section class="controls">
+        <label>
+          Master Ses
+          <input id="volume" type="range" min="0" max="1" step="0.01" value="0.75" />
+        </label>
+        <button id="stopAll">Tüm Sesleri Kes</button>
+      </section>
+
+      <section id="padGrid" class="pad-grid" aria-label="Drumpad"></section>
+    </main>
+
+    <template id="padTemplate">
+      <button class="pad">
+        <span class="key"></span>
+        <span class="name"></span>
+        <span class="family"></span>
+      </button>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
