@@ -38,7 +38,11 @@ button, input { cursor: pointer; }
   width: min(1000px, 92vw);
   margin: 0 auto 2rem;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: .9rem;
+}
+.pad-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(150px, 1fr));
   gap: .9rem;
 }
 .pad {
@@ -61,3 +65,9 @@ button, input { cursor: pointer; }
 .key { font-weight: 800; color: var(--accent); }
 .name { font-size: 1.05rem; font-weight: 700; }
 .family { color: #cbd5e1; font-size: .88rem; }
+
+@media (max-width: 760px) {
+  .pad-row {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+  }
+}

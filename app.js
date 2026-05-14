@@ -1,18 +1,25 @@
 const pads = [
-  { key: "Q", name: "Kick", family: "Davul", type: "kick" },
-  { key: "W", name: "Snare", family: "Davul", type: "snare" },
-  { key: "E", name: "Hi-Hat", family: "Davul", type: "hihat" },
-  { key: "R", name: "Tom", family: "Davul", type: "tom" },
-  { key: "A", name: "Crash", family: "Zil", type: "crash" },
-  { key: "S", name: "Ride", family: "Zil", type: "ride" },
-  { key: "D", name: "Clap", family: "Perküsyon", type: "clap" },
-  { key: "F", name: "Shaker", family: "Perküsyon", type: "shaker" },
-  { key: "Z", name: "Saz La", family: "Saz", type: "pluck", freq: 220 },
-  { key: "X", name: "Saz Re", family: "Saz", type: "pluck", freq: 293.66 },
-  { key: "C", name: "Mızıka Do", family: "Mızıka", type: "harmonica", freq: 261.63 },
-  { key: "V", name: "Mızıka Sol", family: "Mızıka", type: "harmonica", freq: 392 },
-  { key: "1", name: "Bass", family: "Synth", type: "bass", freq: 110 },
-  { key: "2", name: "Lead", family: "Synth", type: "lead", freq: 440 },
+  { key: "Q", name: "Kick", family: "Davul", type: "kick", group: "Drums" },
+  { key: "W", name: "Snare", family: "Davul", type: "snare", group: "Drums" },
+  { key: "E", name: "Hi-Hat", family: "Davul", type: "hihat", group: "Drums" },
+  { key: "R", name: "Tom", family: "Davul", type: "tom", group: "Drums" },
+  { key: "A", name: "Crash", family: "Zil", type: "crash", group: "Cymbals" },
+  { key: "S", name: "Ride", family: "Zil", type: "ride", group: "Cymbals" },
+  { key: "D", name: "Clap", family: "Perküsyon", type: "clap", group: "Perc" },
+  { key: "F", name: "Shaker", family: "Perküsyon", type: "shaker", group: "Perc" },
+  { key: "Z", name: "Saz La", family: "Saz", type: "pluck", freq: 220, group: "Strings" },
+  { key: "X", name: "Saz Re", family: "Saz", type: "pluck", freq: 293.66, group: "Strings" },
+  { key: "C", name: "Mızıka Do", family: "Mızıka", type: "harmonica", freq: 261.63, group: "Wind" },
+  { key: "V", name: "Mızıka Sol", family: "Mızıka", type: "harmonica", freq: 392, group: "Wind" },
+  { key: "1", name: "Bass", family: "Synth", type: "bass", freq: 110, group: "Synth" },
+  { key: "2", name: "Lead", family: "Synth", type: "lead", freq: 440, group: "Synth" },
+];
+
+const FL_LAYOUT = [
+  ["Q", "W", "E", "R"],
+  ["A", "S", "D", "F"],
+  ["Z", "X", "C", "V"],
+  ["1", "2"],
 ];
 
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -106,23 +113,38 @@ function playPad(pad) {
   src.onended = () => activeNodes.delete(src);
 }
 
+function createPadNode(tpl, pad) {
+  const node = tpl.content.firstElementChild.cloneNode(true);
+  node.dataset.key = pad.key;
+  node.querySelector(".key").textContent = pad.key;
+  node.querySelector(".name").textContent = pad.name;
+  node.querySelector(".family").textContent = `${pad.family} • ${pad.group}`;
+  node.addEventListener("pointerdown", async () => {
+    if (audioCtx.state === "suspended") await audioCtx.resume();
+    node.classList.add("active");
+    playPad(pad);
+    setTimeout(() => node.classList.remove("active"), 120);
+  });
+  return node;
+}
+
 function renderPads() {
   const grid = document.getElementById("padGrid");
   const tpl = document.getElementById("padTemplate");
+  const byKey = new Map(pads.map((pad) => [pad.key, pad]));
 
-  pads.forEach((pad) => {
-    const node = tpl.content.firstElementChild.cloneNode(true);
-    node.dataset.key = pad.key;
-    node.querySelector(".key").textContent = pad.key;
-    node.querySelector(".name").textContent = pad.name;
-    node.querySelector(".family").textContent = pad.family;
-    node.addEventListener("pointerdown", async () => {
-      if (audioCtx.state === "suspended") await audioCtx.resume();
-      node.classList.add("active");
-      playPad(pad);
-      setTimeout(() => node.classList.remove("active"), 120);
+  FL_LAYOUT.forEach((row, index) => {
+    const rowNode = document.createElement("div");
+    rowNode.className = "pad-row";
+    rowNode.dataset.row = String(index + 1);
+
+    row.forEach((key) => {
+      const pad = byKey.get(key);
+      if (!pad) return;
+      rowNode.appendChild(createPadNode(tpl, pad));
     });
-    grid.appendChild(node);
+
+    grid.appendChild(rowNode);
   });
 }
 
